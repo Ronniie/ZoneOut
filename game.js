@@ -134,6 +134,14 @@ function showDeathScreen() {
     const seconds = Math.floor(gameState.gameTime % 60);
     finalTime.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     
+    // Hide level display in endless mode
+    const levelRow = document.querySelector('.death-screen .stat-row:nth-child(2)');
+    if (gameState.selectedMode === 'endless') {
+        levelRow.style.display = 'none';
+    } else {
+        levelRow.style.display = 'flex';
+    }
+    
     // Show death screen
     deathScreen.classList.add('show');
 }
@@ -766,7 +774,17 @@ function initializeGame() {
         // Spawn new squares if needed (for endless mode)
         if (gameState.selectedMode === 'endless' && 
             squares.length < gameConfig.difficulties[gameState.selectedDifficulty].maxSquares) {
-            spawnSquare(canvas, squares);
+            const config = gameConfig.difficulties[gameState.selectedDifficulty];
+            const totalSquares = config.maxSquares;
+            const currentRedSquares = squares.filter(square => square.color === gameConfig.colors.bad).length;
+            const targetRedSquares = Math.floor(totalSquares * config.redSquareRatio);
+            
+            // Spawn a red square if we're below the target ratio
+            if (currentRedSquares < targetRedSquares) {
+                spawnSquare(canvas, squares, true);
+            } else {
+                spawnSquare(canvas, squares, false);
+            }
         }
         
         requestAnimationFrame(gameLoop);
