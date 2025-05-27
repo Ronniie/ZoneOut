@@ -524,6 +524,7 @@ function initializeGame() {
     let selectionBox = null;
     let isSelecting = false;
     let startX, startY;
+    let isDragging = false;
     
     // Spawn initial squares with correct red square ratio
     const numSquares = getSquaresForLevel();
@@ -559,6 +560,15 @@ function initializeGame() {
                    squareCenterY >= top && 
                    squareCenterY <= bottom;
         });
+        
+        // If only one square is selected and the selection box is very small,
+        // treat it as a click on that square
+        if (selectedSquares.length === 1 && 
+            Math.abs(selectionBox.width) < 5 && 
+            Math.abs(selectionBox.height) < 5) {
+            handleSquareClick(selectedSquares[0], squares);
+            return;
+        }
         
         // Calculate total changes
         let totalScoreChange = 0;
@@ -671,17 +681,37 @@ function initializeGame() {
             handleSelectedSquares(selectionBox);
         }
         isSelecting = false;
+        isDragging = false;
         selectionBox = null;
     }
     
     // Mouse event listeners
     canvas.addEventListener('mousedown', (e) => {
-        isSelecting = true;
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
         startX = (e.clientX - rect.left) * scaleX;
         startY = (e.clientY - rect.top) * scaleY;
+        
+        // Only allow direct clicking in easy and medium difficulties
+        if (gameState.selectedDifficulty !== 'hard') {
+            // Check if we clicked directly on a square
+            const clickedSquare = squares.find(square => {
+                return startX >= square.x && 
+                       startX <= square.x + square.size && 
+                       startY >= square.y && 
+                       startY <= square.y + square.size;
+            });
+            
+            if (clickedSquare) {
+                handleSquareClick(clickedSquare, squares);
+                return;
+            }
+        }
+        
+        // Start selection box (for hard mode or when clicking empty space)
+        isSelecting = true;
+        isDragging = true;
         selectionBox = {
             x: startX,
             y: startY,
@@ -721,23 +751,53 @@ function initializeGame() {
     
     canvas.addEventListener('mouseup', (e) => {
         if (!isSelecting) return;
-        clearSelection();
+        
+        if (isDragging && selectionBox) {
+            handleSelectedSquares(selectionBox);
+        }
+        
+        isSelecting = false;
+        isDragging = false;
+        selectionBox = null;
+        
+        // Clear highlights
+        squares.forEach(square => {
+            square.isHighlighted = false;
+        });
     });
     
     // Handle window blur
     window.addEventListener('blur', () => {
-        clearSelection();
+        isSelecting = false;
+        isDragging = false;
+        selectionBox = null;
+        squares.forEach(square => {
+            square.isHighlighted = false;
+        });
     });
     
     // Handle mouse leave
     canvas.addEventListener('mouseleave', () => {
-        clearSelection();
+        isSelecting = false;
+        isDragging = false;
+        selectionBox = null;
+        squares.forEach(square => {
+            square.isHighlighted = false;
+        });
     });
     
     // Handle mouse up outside canvas
     document.addEventListener('mouseup', () => {
         if (isSelecting) {
-            clearSelection();
+            if (isDragging && selectionBox) {
+                handleSelectedSquares(selectionBox);
+            }
+            isSelecting = false;
+            isDragging = false;
+            selectionBox = null;
+            squares.forEach(square => {
+                square.isHighlighted = false;
+            });
         }
     });
     
