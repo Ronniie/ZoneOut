@@ -359,12 +359,15 @@ function handleLevelCompletion(squares) {
     
     const finalBonus = baseTimeBonus + speedBonus + comboBonus;
     
-    // Show bonus breakdown
-    showTimeBonusPopup(finalBonus, {
-        base: baseTimeBonus,
-        speed: speedBonus,
-        combo: comboBonus
-    });
+    // Show bonus notification
+    let bonusMessage = `<span class="bonus-change">Level Complete! +${finalBonus}s</span>`;
+    if (speedBonus > 0) {
+        bonusMessage += `<br><span class="score-change">Speed Bonus: +${speedBonus}s</span>`;
+    }
+    if (comboBonus > 0) {
+        bonusMessage += `<br><span class="score-change">Combo Bonus: +${comboBonus}s</span>`;
+    }
+    showNotification(bonusMessage, 2000);
     
     // Clear squares with effects
     squares.forEach(square => {
@@ -408,30 +411,56 @@ function handleLevelCompletion(squares) {
 function handleSquareClick(square, squares) {
     const index = squares.indexOf(square);
     if (index > -1) {
+        let scoreChange = 0;
+        let livesChange = 0;
+        let bonusChange = 0;
+        let bonusLife = false;
+        let notificationParts = [];
+        
         // Handle scoring
         if (square.color === gameConfig.colors.good) {
-            gameState.score += 1;
+            scoreChange = 1;
             gameState.currentCombo++;
-            showPointGainPopup(1);
+            notificationParts.push(`<span class="score-change">+${scoreChange} Point${scoreChange !== 1 ? 's' : ''}</span>`);
         } else if (square.color === gameConfig.colors.bonus) {
-            gameState.score += 3;
+            scoreChange = 2;
+            bonusChange = 2;
             gameState.currentCombo += 2;
-            showPointGainPopup(3);
+            notificationParts.push(`<span class="bonus-change">+${scoreChange} Bonus Point${scoreChange !== 1 ? 's' : ''}</span>`);
+            // Bonus life logic (medium only, if lost a life)
+            const config = gameConfig.difficulties[gameState.selectedDifficulty];
+            if (
+                gameState.selectedDifficulty === 'medium' &&
+                gameState.lives < config.lives &&
+                Math.random() < 0.1 // 10% chance
+            ) {
+                gameState.lives += 1;
+                bonusLife = true;
+                notificationParts.push('<span class="lives-change">+1 Bonus Life</span>');
+            }
         }
         
         // Handle red squares
         if (square.color === gameConfig.colors.bad) {
             const config = gameConfig.difficulties[gameState.selectedDifficulty];
             if (config.lives !== Infinity) {
-                gameState.lives--;
+                livesChange = -1;
                 gameState.currentCombo = 0;
-                showLifeLossPopup(1);
-                
+                notificationParts.push('<span class="lives-change">-1 Life</span>');
                 if (gameState.lives <= 0) {
                     gameState.isPlaying = false;
                     showDeathScreen();
                 }
             }
+        }
+        
+        // Update game state
+        gameState.score += scoreChange;
+        gameState.lives += livesChange;
+        
+        // Create notification message
+        if (notificationParts.length > 0) {
+            showNotification(notificationParts.join(', '));
         }
         
         // Create effects
@@ -531,8 +560,106 @@ function initializeGame() {
                    squareCenterY <= bottom;
         });
         
-        // Handle selected squares
-        selectedSquares.forEach(square => handleSquareClick(square, squares));
+        // Calculate total changes
+        let totalScoreChange = 0;
+        let totalBonusChange = 0;
+        let totalLivesChange = 0;
+        let bonusLife = false;
+        let notificationParts = [];
+        
+        // Handle each selected square
+        selectedSquares.forEach(square => {
+            if (square.color === gameConfig.colors.good) {
+                totalScoreChange += 1;
+                gameState.currentCombo++;
+            } else if (square.color === gameConfig.colors.bonus) {
+                totalScoreChange += 2;
+                totalBonusChange += 2;
+                gameState.currentCombo += 2;
+                
+                // Bonus life logic (medium only, if lost a life)
+                const config = gameConfig.difficulties[gameState.selectedDifficulty];
+                if (
+                    gameState.selectedDifficulty === 'medium' &&
+                    gameState.lives < config.lives &&
+                    Math.random() < 0.1 // 10% chance
+                ) {
+                    totalLivesChange += 1;
+                    bonusLife = true;
+                }
+            } else if (square.color === gameConfig.colors.bad) {
+                const config = gameConfig.difficulties[gameState.selectedDifficulty];
+                if (config.lives !== Infinity) {
+                    totalLivesChange -= 1;
+                    gameState.currentCombo = 0;
+                }
+            }
+            
+            // Create effects
+            for (let i = 0; i < gameConfig.particleCount; i++) {
+                const angle = (Math.PI * 2 * i) / gameConfig.particleCount;
+                const x = square.x + square.size / 2;
+                const y = square.y + square.size / 2;
+                createParticle(x, y, square.color);
+            }
+            
+            // Extra sparkles for bonus squares
+            if (square.color === gameConfig.colors.bonus) {
+                for (let i = 0; i < gameConfig.sparkleCount; i++) {
+                    const angle = (Math.PI * 2 * i) / gameConfig.sparkleCount;
+                    const x = square.x + square.size / 2 + Math.cos(angle) * 20;
+                    const y = square.y + square.size / 2 + Math.sin(angle) * 20;
+                    createSparkle(x, y);
+                }
+            }
+        });
+        
+        // Build notification message
+        if (totalScoreChange > 0) {
+            notificationParts.push(`<span class="score-change">+${totalScoreChange} Point${totalScoreChange !== 1 ? 's' : ''}</span>`);
+        }
+        if (totalBonusChange > 0) {
+            notificationParts.push(`<span class="bonus-change">+${totalBonusChange} Bonus Point${totalBonusChange !== 1 ? 's' : ''}</span>`);
+        }
+        if (totalLivesChange > 0) {
+            notificationParts.push(`<span class="lives-change">+${totalLivesChange} Bonus Life${totalLivesChange !== 1 ? 's' : ''}</span>`);
+        }
+        if (totalLivesChange < 0) {
+            notificationParts.push(`<span class="lives-change">${totalLivesChange} Life${totalLivesChange !== -1 ? 's' : ''}</span>`);
+        }
+        
+        // Show notification if there are any changes
+        if (notificationParts.length > 0) {
+            showNotification(notificationParts.join(', '));
+        }
+        
+        // Update game state
+        gameState.score += totalScoreChange;
+        gameState.lives += totalLivesChange;
+        
+        // Check for game over
+        if (gameState.lives <= 0) {
+            gameState.isPlaying = false;
+            showDeathScreen();
+        }
+        
+        // Remove selected squares
+        selectedSquares.forEach(square => {
+            const index = squares.indexOf(square);
+            if (index > -1) {
+                squares.splice(index, 1);
+            }
+        });
+        
+        // Update max combo
+        if (gameState.currentCombo > gameState.maxCombo) {
+            gameState.maxCombo = gameState.currentCombo;
+        }
+        
+        // Check for level completion
+        if (isLevelComplete(squares)) {
+            handleLevelCompletion(squares);
+        }
         
         updateStats();
     }
@@ -912,4 +1039,15 @@ function showTimeBonusPopup(seconds, breakdown) {
         timeBonusPopup.classList.remove('show');
         timeBonusPopup.remove();
     }, 2000);
+}
+
+// New notification system
+function showNotification(message, duration = 1500) {
+    const notificationContent = document.querySelector('.notification-content');
+    notificationContent.innerHTML = message;
+    notificationContent.classList.add('show');
+    
+    setTimeout(() => {
+        notificationContent.classList.remove('show');
+    }, duration);
 } 
