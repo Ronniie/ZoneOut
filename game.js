@@ -735,6 +735,11 @@ function initializeGame() {
             width: 0,
             height: 0
         };
+        // Disable pointer events on UI
+        document.querySelector('.settings-icon').classList.add('no-pointer-events');
+        document.querySelector('.settings-menu').classList.add('no-pointer-events');
+        document.querySelector('h1').classList.add('no-pointer-events');
+        document.querySelector('.game-stats').classList.add('no-pointer-events');
     });
     
     canvas.addEventListener('mousemove', (e) => {
@@ -772,11 +777,14 @@ function initializeGame() {
         if (isDragging && selectionBox) {
             handleSelectedSquares(selectionBox);
         }
-        
         isSelecting = false;
         isDragging = false;
         selectionBox = null;
-        
+        // Re-enable pointer events on UI
+        document.querySelector('.settings-icon').classList.remove('no-pointer-events');
+        document.querySelector('.settings-menu').classList.remove('no-pointer-events');
+        document.querySelector('h1').classList.remove('no-pointer-events');
+        document.querySelector('.game-stats').classList.remove('no-pointer-events');
         // Clear highlights
         squares.forEach(square => {
             square.isHighlighted = false;
@@ -788,6 +796,11 @@ function initializeGame() {
         isSelecting = false;
         isDragging = false;
         selectionBox = null;
+        // Re-enable pointer events on UI
+        document.querySelector('.settings-icon').classList.remove('no-pointer-events');
+        document.querySelector('.settings-menu').classList.remove('no-pointer-events');
+        document.querySelector('h1').classList.remove('no-pointer-events');
+        document.querySelector('.game-stats').classList.remove('no-pointer-events');
         squares.forEach(square => {
             square.isHighlighted = false;
         });
@@ -798,6 +811,11 @@ function initializeGame() {
         isSelecting = false;
         isDragging = false;
         selectionBox = null;
+        // Re-enable pointer events on UI
+        document.querySelector('.settings-icon').classList.remove('no-pointer-events');
+        document.querySelector('.settings-menu').classList.remove('no-pointer-events');
+        document.querySelector('h1').classList.remove('no-pointer-events');
+        document.querySelector('.game-stats').classList.remove('no-pointer-events');
         squares.forEach(square => {
             square.isHighlighted = false;
         });
@@ -812,6 +830,11 @@ function initializeGame() {
             isSelecting = false;
             isDragging = false;
             selectionBox = null;
+            // Re-enable pointer events on UI
+            document.querySelector('.settings-icon').classList.remove('no-pointer-events');
+            document.querySelector('.settings-menu').classList.remove('no-pointer-events');
+            document.querySelector('h1').classList.remove('no-pointer-events');
+            document.querySelector('.game-stats').classList.remove('no-pointer-events');
             squares.forEach(square => {
                 square.isHighlighted = false;
             });

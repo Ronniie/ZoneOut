@@ -969,4 +969,10 @@ h3 {
 .mode-btn.active + .mode-info .info-text {
     display: block;
     animation: fadeIn 0.3s ease forwards;
+}
+
+.no-pointer-events {
+    pointer-events: none !important;
+    user-select: none !important;
+    opacity: 0.7;
 } 
