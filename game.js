@@ -142,9 +142,12 @@ function showDeathScreen() {
         levelRow.style.display = 'flex';
     }
     
-    // Update mode and difficulty badges
-    document.querySelector('.mode-text').textContent = gameState.selectedMode;
-    document.querySelector('.difficulty-text').textContent = gameState.selectedDifficulty;
+    // Update mode and difficulty badges with proper capitalization
+    const modeText = gameState.selectedMode.charAt(0).toUpperCase() + gameState.selectedMode.slice(1);
+    const difficultyText = gameState.selectedDifficulty.charAt(0).toUpperCase() + gameState.selectedDifficulty.slice(1);
+    
+    document.querySelector('.mode-text').textContent = modeText;
+    document.querySelector('.difficulty-text').textContent = difficultyText;
     
     // Show death screen
     deathScreen.classList.add('show');
@@ -178,6 +181,11 @@ difficultyButtons.forEach(button => {
         button.classList.add('active');
         gameState.selectedDifficulty = button.dataset.difficulty;
         setCookie('difficulty', gameState.selectedDifficulty, 365);
+        
+        // Update info text visibility
+        document.querySelectorAll('.difficulty-info .info-text').forEach(info => info.style.display = 'none');
+        document.querySelector(`.${gameState.selectedDifficulty}-info`).style.display = 'block';
+        
         restartGame();
     });
 });
@@ -188,6 +196,11 @@ modeButtons.forEach(button => {
         button.classList.add('active');
         gameState.selectedMode = button.dataset.mode;
         setCookie('mode', gameState.selectedMode, 365);
+        
+        // Update info text visibility
+        document.querySelectorAll('.mode-info .info-text').forEach(info => info.style.display = 'none');
+        document.querySelector(`.${gameState.selectedMode}-info`).style.display = 'block';
+        
         restartGame();
     });
 });

@@ -58,28 +58,30 @@
             <i class="fas fa-cog"></i>
             <div class="settings-menu">
                 <h2>Game Settings</h2>
-                <div class="difficulty">
-                    <h3>Select Difficulty</h3>
-                    <div class="difficulty-options">
-                        <button class="difficulty-btn" data-difficulty="easy">Easy</button>
-                        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
-                        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+                <div class="settings-grid">
+                    <div class="difficulty">
+                        <h3>Select Difficulty</h3>
+                        <div class="difficulty-options">
+                            <button class="difficulty-btn" data-difficulty="easy"><i class="fas fa-leaf"></i> Easy</button>
+                            <button class="difficulty-btn" data-difficulty="medium"><i class="fas fa-bolt"></i> Medium</button>
+                            <button class="difficulty-btn" data-difficulty="hard"><i class="fas fa-skull-crossbones"></i> Hard</button>
+                        </div>
+                        <div class="difficulty-info">
+                            <p class="info-text easy-info">Easy: 10 squares, slower speed, infinite lives</p>
+                            <p class="info-text medium-info">Medium: 15 squares, medium speed, 5 lives</p>
+                            <p class="info-text hard-info">Hard: 20 squares, fast speed, 3 lives</p>
+                        </div>
                     </div>
-                    <div class="difficulty-info">
-                        <p class="info-text easy-info">Easy: 10 squares, slower speed, infinite lives</p>
-                        <p class="info-text medium-info">Medium: 15 squares, medium speed, 5 lives</p>
-                        <p class="info-text hard-info">Hard: 20 squares, fast speed, 3 lives</p>
-                    </div>
-                </div>
-                <div class="game-mode">
-                    <h3>Game Mode</h3>
-                    <div class="mode-options">
-                        <button class="mode-btn" data-mode="levels">Levels</button>
-                        <button class="mode-btn" data-mode="endless">Endless</button>
-                    </div>
-                    <div class="mode-info">
-                        <p class="info-text levels-info">Levels: Clear all squares to advance. Lives matter!</p>
-                        <p class="info-text endless-info">Endless: Keep clearing squares for high score</p>
+                    <div class="game-mode">
+                        <h3>Game Mode</h3>
+                        <div class="mode-options">
+                            <button class="mode-btn" data-mode="levels"><i class="fas fa-layer-group"></i> Levels</button>
+                            <button class="mode-btn" data-mode="endless"><i class="fas fa-infinity"></i> Endless</button>
+                        </div>
+                        <div class="mode-info">
+                            <p class="info-text levels-info">Levels: Clear all squares to advance. Lives matter!</p>
+                            <p class="info-text endless-info">Endless: Keep clearing squares for high score</p>
+                        </div>
                     </div>
                 </div>
                 <button id="restart-game" class="restart-btn">
