@@ -142,6 +142,10 @@ function showDeathScreen() {
         levelRow.style.display = 'flex';
     }
     
+    // Update mode and difficulty badges
+    document.querySelector('.mode-text').textContent = gameState.selectedMode;
+    document.querySelector('.difficulty-text').textContent = gameState.selectedDifficulty;
+    
     // Show death screen
     deathScreen.classList.add('show');
 }
